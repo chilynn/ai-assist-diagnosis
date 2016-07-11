@@ -51,7 +51,7 @@ class ExaminationSpider(BaseSpider):
 			yield Request(
 				url=url,
 				callback=lambda response, href=href, examination=examination:self.parseExaminationIntro(response, href, examination)
-			)		c
+			)
 
 	# 处理检查简介页
 	def parseExaminationIntro(self, response, href, examination):
