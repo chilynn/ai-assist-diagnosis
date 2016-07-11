@@ -7,7 +7,7 @@ from scrapy.spiders import BaseSpider
 from scrapy.http import Request
 from health39.items import *
 
-# 爬取命令： scrapy crawl health39_disease -o disease.json -t jsonlines
+# 爬取命令： scrapy crawl health39_disease -o crawl_data/disease.json -t jsonlines
 class MedicalSpider(BaseSpider):
 	name = "health39_disease"
 	domian = ["39.net"]
@@ -16,7 +16,7 @@ class MedicalSpider(BaseSpider):
 	def start_requests(self):
 		requests = []
 		# 科室列表
-		with open("list.csv", "rb") as infile:
+		with open("crawl_list.csv", "rb") as infile:
 			for row in infile:
 				row = row.strip().decode("utf-8")
 				department_cn = row.split(',')[0]

@@ -7,7 +7,7 @@ from scrapy.spiders import BaseSpider
 from scrapy.http import Request
 from health39.items import *
 
-# 爬取命令： scrapy crawl health39_symptom -o symptom.json -t jsonlines
+# 爬取命令： scrapy crawl health39_symptom -o crawl_data/symptom.json -t jsonlines
 class SymptomSpider(BaseSpider):
 	name = "health39_symptom"
 	domian = ["39.net"]
@@ -16,7 +16,7 @@ class SymptomSpider(BaseSpider):
 	def start_requests(self):
 		requests = []
 		# 科室列表
-		with open("list.csv", "rb") as infile:
+		with open("crawl_list.csv", "rb") as infile:
 			for row in infile:
 				row = row.strip().decode("utf-8")
 				department_cn = row.split(',')[0]
@@ -53,9 +53,9 @@ class SymptomSpider(BaseSpider):
 			symptom = SymptomItem()
 			symptom["name"] = symptom_cn
 			# 症状简介页
-			url_intro = href
+			url = href
 			yield Request(
-				url=url_intro,
+				url=url,
 				callback=lambda response, href=href, symptom=symptom:self.parseSymptonIntro(response, href, symptom)
 			)	
 			break		
@@ -67,6 +67,8 @@ class SymptomSpider(BaseSpider):
 		symptom["intro"] = intro
 		symptom["relevant_diseases"] = relevant_diseases
 		yield symptom
+
+
 
 
 
