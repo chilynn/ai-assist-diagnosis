@@ -36,8 +36,8 @@ class SymptomSpider(BaseSpider):
 		page_text = response.xpath("//span[@class='res_page']/text()").extract()[0]
 		page_num = int(page_text.split('/')[1])
 		for page_index in range(page_num):
-			if page_index >= 1:
-				break
+			# if page_index >= 1:
+			# 	break
 			url = "http://jbk.39.net/bw/erke_t2_p"+str(page_index)
 			yield Request(
 				url=url,
@@ -48,7 +48,6 @@ class SymptomSpider(BaseSpider):
 	def parsePageItem(self, response):
 		for a in response.xpath("//dt[@class='clearfix']//h3/a"):
 			symptom_cn = a.xpath("text()").extract()[0].strip()
-			print symptom_cn
 			href = a.xpath("@href").extract()[0].strip()
 			symptom = SymptomItem()
 			symptom["name"] = symptom_cn
@@ -57,8 +56,7 @@ class SymptomSpider(BaseSpider):
 			yield Request(
 				url=url,
 				callback=lambda response, href=href, symptom=symptom:self.parseSymptonIntro(response, href, symptom)
-			)	
-			break		
+			)		
 
 	# 处理症状简介页
 	def parseSymptonIntro(self, response, href, symptom):

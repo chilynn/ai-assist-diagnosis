@@ -36,15 +36,15 @@ class MedicalSpider(BaseSpider):
 		page_text = response.xpath("//span[@class='res_page']/text()").extract()[0]
 		page_num = int(page_text.split('/')[1])
 		for page_index in range(page_num):
-			if page_index >= 1:
-				break
+			# if page_index >= 1:
+			# 	break
 			url = "http://jbk.39.net/bw/erke_t1_p"+str(page_index)
 			yield Request(
 				url=url,
 				callback=lambda response, department=department:self.parsePageItem(response, department)
 			)
 
-	# 处理每个分页
+	# 处理每个分页，每个分页有10条记录
 	def parsePageItem(self, response, department):
 		for a in response.xpath("//dt[@class='clearfix']//h3/a"):
 			disease_cn = a.xpath("text()").extract()[0].strip()

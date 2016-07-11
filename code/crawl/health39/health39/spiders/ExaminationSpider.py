@@ -30,8 +30,8 @@ class ExaminationSpider(BaseSpider):
 		page_text = response.xpath("//span[@class='res_page']/text()").extract()[0]
 		page_num = int(page_text.split('/')[1])
 		for page_index in range(page_num):
-			if page_index >= 1:
-				break
+			# if page_index >= 1:
+			# 	break
 			url = "http://jbk.39.net/jiancha/search_p"+str(page_index)
 			yield Request(
 				url=url,
