@@ -22,9 +22,20 @@ import scrapy
 # 	prevention = scrapy.Field() # 预防
 # 	complication = scrapy.Field() # 并发症（伴随疾病）
 
+class SymptomItem(scrapy.Item):
+	name = scrapy.Field() # 症状名称
+	intro = scrapy.Field() # 症状简介
+	relevant_diseases = scrapy.Field() # 相关疾病
+
 class DiseaseItem(scrapy.Item):
 	name = scrapy.Field() # 疾病名称
-	first_department = scrapy.Field() # 所属一级科室
-	second_department = scrapy.Field() # 所属二级科室
-	brief = scrapy.Field() # 疾病概述
-	detail = scrapy.Field() # 疾病详细描述
+	alias = scrapy.Field() # 疾病别名
+	department = scrapy.Field() # 所属科室
+	intro = scrapy.Field() # 疾病简介
+	symptoms = scrapy.Field() # 疾病症状列表
+	complications = scrapy.Field() # 疾病并发症列表
+
+
+
+
+
