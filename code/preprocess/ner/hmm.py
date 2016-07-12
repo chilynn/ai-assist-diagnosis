@@ -23,7 +23,7 @@ def train(train_file):
 				pre_s = -1
 			else:
 				o = segs[0] # t时刻的观测o
-				s = segs[3] # t时刻的状态s
+				s = segs[1] # t时刻的状态s
 				# 统计状态s到观测o的次数
 				B[s][o] = B.setdefault(s, {}).setdefault(o, 0) + 1
 				V.add(o)
@@ -75,10 +75,12 @@ def predict(X):
 			new_path[s] = tmp
 		path = new_path
 	(max_prob, max_s) = max((W[len(X)-1][s], s) for s in Q)
+	# return path['E']
 	return path[max_s]
 
 def test(test_file, output_file):
 	print "start testing"
+	words = set()
 	with open(test_file, "rb") as infile, \
 		 open(output_file, "wb") as outfile:
 		X_test = []
@@ -86,17 +88,33 @@ def test(test_file, output_file):
 		for line in infile:
 			segs = line.strip().split()
 			if len(segs) == 0: # 遇到空行时
+				if len(X_test) == 0:
+					continue
 				preds = predict(X_test)
 				for vals in zip(X_test, y_test, preds):
 					outfile.write("\t".join(vals) + "\r\n")	
 				outfile.write("\r\n")
+				tmp = ""
+				for i in range(len(preds)):
+					if preds[i] != 'O':
+						tmp += X_test[i]
+					else:
+						tmp += " "
+				for w in tmp.split():
+					if w.strip() != "":
+						words.add(w)
 				X_test = []
 				y_test = []
 			else:
 				o = segs[0] # t时刻的观测o
-				s = segs[3] # t时刻的状态s		
+				s = segs[1] # t时刻的状态s		
 				X_test.append(o)
 				y_test.append(s)
+
+	with open("word.txt", "wb") as outfile:
+		for w in words:
+			outfile.write(w + "\r\n")
+
 	print "finished testing"
 
 def main():
