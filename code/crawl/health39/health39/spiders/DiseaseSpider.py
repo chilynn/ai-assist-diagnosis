@@ -43,6 +43,7 @@ class MedicalSpider(BaseSpider):
 				url=url,
 				callback=lambda response, department=department:self.parsePageItem(response, department)
 			)
+			break
 
 	# 处理每个分页，每个分页有10条记录
 	def parsePageItem(self, response, department):
@@ -52,48 +53,95 @@ class MedicalSpider(BaseSpider):
 			disease = DiseaseItem()
 			disease["name"] = disease_cn
 			disease["alias"] = ""
+			disease["organ"] = ""
 			disease["department"] = department
 			# 疾病知识页（简介）
 			url_intro = href + "jbzs"
 			yield Request(
 				url=url_intro,
 				callback=lambda response, href=href, disease=disease:self.parseDiseaseIntro(response, href, disease)
-			)		
+			)	
+			break	
 
-	# 处理疾病知识页（简介）
+	# 处理“疾病简介”页
 	def parseDiseaseIntro(self, response, href, disease):
 		intro = response.xpath("//dl[@class='intro']/dd/text()").extract()[0]
 		disease["intro"] = intro
-		for sel in response.xpath("//div[@class='chi-know']/dl[@class='info']")[:3]:
-			for sel2 in sel.xpath("./dd"):
-				key = ''.join(sel2.xpath("./i/text()").extract())
-				val = ''.join(sel2.xpath("./text()").extract())
-				if u"别名" in key:
-					disease["alias"] = val.strip()
+		for sel in response.xpath("//div[@class='chi-know']/dl[@class='info']//dd"):
+			for val in sel.xpath(".//text()").extract():
+				if u"别名" in val:
+					disease["alias"] = ''.join(sel.xpath("./text()").extract()).strip()
+				if u"发病部位" in val:
+					disease["organ"] = ''.join(sel.xpath("./a/text()").extract()).strip()
 
-		# 疾病症状页
+		# 处理“典型症状”页
 		url_symptom = href + "zztz"	
 		yield Request(
 			url=url_symptom,
 			callback=lambda response, href=href, disease=disease:self.parseDiseaseSymptom(response, href, disease)
 		)	
 
-	# 处理疾病症状页
+	# 处理“典型症状”页
 	def parseDiseaseSymptom(self, response, href, disease):
 		disease["symptoms"] = []
 		for sel in response.xpath("//div[@class='chi-know chi-int']/dl[@class='links']//dd"):
 			for symptom_name in sel.xpath("./a//text()").extract():
 				disease["symptoms"].append(symptom_name.strip())
-		disease["symptom_description"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
+		disease["symptom"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
 
-		# 疾病并发症
+		# 处理“发病原因”页
+		url_complication = href + "blby"	
+		yield Request(
+			url=url_complication,
+			callback=lambda response, href=href, disease=disease:self.parseDiseaseReason(response, href, disease)
+		)			
+
+	# 处理“发病原因”页
+	def parseDiseaseReason(self, response, href, disease):
+		disease["reason"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
+		
+		# 处理“临床检查”页
+		url_examination = href + "jcjb"	
+		yield Request(
+			url=url_examination,
+			callback=lambda response, href=href, disease=disease:self.parseDiseaseExamination(response, href, disease)
+		)	
+
+	# 处理“临床检查”页
+	def parseDiseaseExamination(self, response, href, disease):
+		disease["examinations"] = response.xpath("//div[@class='checkbox']//td//a/text()").extract()[::2]
+		disease["examination"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
+		
+		# 处理“鉴别”页
+		url_treatment = href + "jb"	
+		yield Request(
+			url=url_treatment,
+			callback=lambda response, href=href, disease=disease:self.parseDiseaseIdentification(response, href, disease)
+		)	
+
+	# 处理“鉴别”页
+	def parseDiseaseIdentification(self, response, href, disease):
+		disease["identification"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
+
+		# 处理“治疗方法”页
+		url_complication = href + "yyzl"	
+		yield Request(
+			url=url_complication,
+			callback=lambda response, href=href, disease=disease:self.parseDiseaseTreatment(response, href, disease)
+		)	
+
+	# 处理“治疗方法”页
+	def parseDiseaseTreatment(self, response, href, disease):
+		disease["treatment"] = ''.join(response.xpath("//div[@class='art-box']//p//text()").extract())
+
+		# 处理“并发症”页
 		url_complication = href + "bfbz"	
 		yield Request(
 			url=url_complication,
 			callback=lambda response, href=href, disease=disease:self.parseDiseaseComplication(response, href, disease)
-		)			
+		)		
 
-	# 处理疾病并发症
+	# 处理“并发症”页
 	def parseDiseaseComplication(self, response, href, disease):
 		disease["complications"] = []
 		for sel in response.xpath("//div[@class='chi-know chi-int']/dl[@class='links']//dd"):
@@ -101,29 +149,7 @@ class MedicalSpider(BaseSpider):
 			for comp_disease_name in sel.xpath("./a//text()").extract():
 				disease["complications"].append(comp_disease_name.strip())
 		
-		# 疾病相关检查
-		url_examination = href + "jcjb"	
-		yield Request(
-			url=url_examination,
-			callback=lambda response, href=href, disease=disease:self.parseDiseaseExamination(response, href, disease)
-		)
-
-	# 处理疾病检查
-	def parseDiseaseExamination(self, response, href, disease):
-		disease["examinations"] = response.xpath("//div[@class='checkbox']//td//a/text()").extract()[::2]
-		disease["examination_description"] = ''.join(response.xpath("//div[@class='art-box']//text()").extract())
-		
-		# 疾病治疗方法
-		url_treatment = href + "yyzl"	
-		yield Request(
-			url=url_treatment,
-			callback=lambda response, href=href, disease=disease:self.parseDiseaseTreatment(response, href, disease)
-		)		
-
-	def parseDiseaseTreatment(self, response, href, disease):
-		disease["treatment_description"] = ''.join(response.xpath("//div[@class='art-box']//p//text()").extract())
 		yield disease
-
-
+	
 
 

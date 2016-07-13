@@ -86,8 +86,8 @@ class SymptomSpider(BaseSpider):
 
 	# 处理“症状起因”页
 	def parseSymptonDiagnosis(self, response, href, symptom):
-		diagnosis_description = ''.join(response.xpath("//div[@class='item catalogItem']//text()").extract())
-		symptom["diagnosis_description"] = diagnosis_description
+		diagnosis = ''.join(response.xpath("//div[@class='item catalogItem']//text()").extract())
+		symptom["diagnosis"] = diagnosis
 		
 		# 处理“鉴别检查”页
 		url = href + "jcjb"	
