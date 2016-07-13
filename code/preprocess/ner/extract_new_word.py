@@ -19,9 +19,6 @@ def main():
 	sys.setdefaultencoding('utf-8')
 	(diseases, symptoms, examinations) = getLexicon()
 	words = getHmmWord()
-	# print len(words)
-	# print len(symptoms)
-	# print len(words - symptoms)
 	with open("new_word.txt", "wb") as outfile:
 		for new_word in (words - symptoms):
 			outfile.write(new_word + "\r\n")

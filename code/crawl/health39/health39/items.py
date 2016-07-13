@@ -10,8 +10,13 @@ import scrapy
 # 症状
 class SymptomItem(scrapy.Item):
 	name = scrapy.Field() # 症状名称
+	department = scrapy.Field() # 所属科室
 	intro = scrapy.Field() # 症状简介
+	reason = scrapy.Field() # 症状起因
+	diagnosis_description = scrapy.Field() # 诊断描述
+	examinations = scrapy.Field() # 检查列表
 	relevant_diseases = scrapy.Field() # 相关疾病
+	similar_symptoms = scrapy.Field() # 相似症状
 
 # 检查
 class ExaminationItem(scrapy.Item):

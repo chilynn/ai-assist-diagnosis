@@ -59,8 +59,8 @@ def generateTrain(sentences, trie):
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
 			for record in zip(sentence, sentence_tagged):
-				outfile.write(' '.join(record) + "\r\n")
-			outfile.write("\r\n")
+				outfile.write(' '.join(record) + "\n")
+			outfile.write("\n")
 	print "finished auto labeling"
 
 def generateTest(sentences, trie):
@@ -69,8 +69,10 @@ def generateTest(sentences, trie):
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
 			for record in zip(sentence, sentence_tagged):
-				outfile.write(' '.join(record) + "\r\n")
-			outfile.write("\r\n")
+				if record[0].strip() == "":
+					continue
+				outfile.write(' '.join(record) + "\n")
+			outfile.write("\n")
 	print "finished auto labeling"
 
 def main():

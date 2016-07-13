@@ -106,6 +106,9 @@ def test(test_file, output_file):
 				X_test = []
 				y_test = []
 			else:
+				if len(segs) != 2:
+					print line
+				
 				o = segs[0] # t时刻的观测o
 				s = segs[1] # t时刻的状态s		
 				X_test.append(o)

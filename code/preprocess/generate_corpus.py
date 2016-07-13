@@ -40,12 +40,16 @@ def generateLexicon():
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
+			if "..." in json_obj["name"]:
+				continue			
 			symptoms.add(json_obj["name"])
 	
 	with open("../crawl/health39/crawl_data/examination.json", "rb") as infile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
+			if "..." in json_obj["name"]:
+				continue			
 			examinations.add(json_obj["name"])
 
 	with open("data/lexicon.pickle", "wb") as outfile:
