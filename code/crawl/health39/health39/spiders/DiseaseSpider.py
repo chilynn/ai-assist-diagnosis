@@ -18,6 +18,8 @@ class MedicalSpider(BaseSpider):
 		# 科室列表
 		with open("crawl_list.csv", "rb") as infile:
 			for row in infile:
+				if "===" in row:
+					break			
 				row = row.strip().decode("utf-8")
 				department_cn = row.split(',')[0]
 				department_en = row.split(',')[1]
@@ -25,10 +27,9 @@ class MedicalSpider(BaseSpider):
 				requests.append(
 					scrapy.FormRequest(
 						request_url, 
-						callback=lambda response, department=department_cn:self.parsePageNum(response, department)
+						callback=lambda response, department=department_en:self.parsePageNum(response, department)
 					)
 				)
-				break
 			return requests
 
 	# 提取有多少分页
@@ -38,12 +39,11 @@ class MedicalSpider(BaseSpider):
 		for page_index in range(page_num):
 			# if page_index >= 1:
 			# 	break
-			url = "http://jbk.39.net/bw/erke_t1_p"+str(page_index)
+			url = "http://jbk.39.net/bw/"+department+"_t1_p"+str(page_index)
 			yield Request(
 				url=url,
 				callback=lambda response, department=department:self.parsePageItem(response, department)
 			)
-			break
 
 	# 处理每个分页，每个分页有10条记录
 	def parsePageItem(self, response, department):
@@ -61,7 +61,6 @@ class MedicalSpider(BaseSpider):
 				url=url_intro,
 				callback=lambda response, href=href, disease=disease:self.parseDiseaseIntro(response, href, disease)
 			)	
-			break	
 
 	# 处理“疾病简介”页
 	def parseDiseaseIntro(self, response, href, disease):

@@ -18,6 +18,8 @@ class SymptomSpider(BaseSpider):
 		# 科室列表
 		with open("crawl_list.csv", "rb") as infile:
 			for row in infile:
+				if "===" in row:
+					break
 				row = row.strip().decode("utf-8")
 				department_cn = row.split(',')[0]
 				department_en = row.split(',')[1]
@@ -25,7 +27,7 @@ class SymptomSpider(BaseSpider):
 				requests.append(
 					scrapy.FormRequest(
 						request_url, 
-						callback=lambda response, department=department_cn:self.parsePageNum(response, department)
+						callback=lambda response, department=department_en:self.parsePageNum(response, department)
 					)
 				)
 			return requests
@@ -35,9 +37,7 @@ class SymptomSpider(BaseSpider):
 		page_text = response.xpath("//span[@class='res_page']/text()").extract()[0]
 		page_num = int(page_text.split('/')[1])
 		for page_index in range(page_num):
-			# if page_index >= 1:
-			# 	break
-			url = "http://jbk.39.net/bw/erke_t2_p"+str(page_index)
+			url = "http://jbk.39.net/bw/"+department+"_t2_p"+str(page_index)
 			yield Request(
 				url=url,
 				callback=lambda response, department=department:self.parsePageItem(response, department)
@@ -51,6 +51,7 @@ class SymptomSpider(BaseSpider):
 			symptom = SymptomItem()
 			symptom["name"] = symptom_cn
 			symptom["department"] = department
+			
 			# 处理“症状简介”页
 			url = href
 			yield Request(

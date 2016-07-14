@@ -8,21 +8,13 @@ def getLexicon():
 		(diseases, symptoms, examinations) = pickle.load(infile)
 	return (diseases, symptoms, examinations) 
 
-def getSymptomSentence():
+def getSentence(infile_name):
 	sentences = []
-	with open("../data/symptom.txt", "rb") as infile:
+	with open("../data/"+infile_name, "rb") as infile:
 		for row in infile:
 			row = row.strip().decode("utf-8").replace(' ', '')
 			sentences += [sentence.strip() for sentence in row.split(u'。')[:-1]]
 	return sentences
-
-def getDiseaseSentence():
-	sentences = []
-	with open("../data/disease.txt", "rb") as infile:
-		for row in infile:
-			row = row.strip().decode("utf-8").replace(' ', '')
-			sentences += [sentence.strip() for sentence in row.split(u'。')[:-1]]
-	return sentences	
 
 def buildTrie(words):
 	trie = Trie()
@@ -79,8 +71,8 @@ def main():
 	reload(sys)
 	sys.setdefaultencoding('utf-8')
 	(diseases, symptoms, examinations) = getLexicon()
-	symptom_sentences = getSymptomSentence()
-	disease_sentences = getDiseaseSentence()
+	symptom_sentences = getSentence("symptom.txt")
+	disease_sentences = getSentence("disease.txt")
 	trie_symptom = buildTrie(symptoms)
 	generateTrain(symptom_sentences, trie_symptom)
 	generateTest(disease_sentences, trie_symptom)

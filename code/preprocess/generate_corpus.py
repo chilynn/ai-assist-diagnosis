@@ -16,6 +16,9 @@ def generateText():
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
 			outfile.write(json_obj["intro"].strip() + "\r\n")
+			outfile.write(json_obj["reason"].strip() + "\r\n")
+			outfile.write(json_obj["symptom"].strip() + "\r\n")
+			outfile.write(json_obj["identification"].strip() + "\r\n")
 
 	with open("../crawl/health39/crawl_data/symptom.json", "rb") as infile,\
 		 open ("data/symptom.txt", "wb") as outfile:
@@ -23,6 +26,8 @@ def generateText():
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
 			outfile.write(json_obj["intro"].strip() + "\r\n")
+			outfile.write(json_obj["reason"].strip() + "\r\n")
+			outfile.write(json_obj["diagnosis"].strip() + "\r\n")
 
 def generateLexicon():
 	diseases = set()
