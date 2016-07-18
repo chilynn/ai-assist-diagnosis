@@ -9,7 +9,7 @@ def getLexicon():
 
 def getHmmWord():
 	words = set()
-	with open("word.txt", "rb") as infile:
+	with open("word_crf.txt", "rb") as infile:
 		for row in infile:
 			words.add(row.strip().decode("utf-8"))
 	return words

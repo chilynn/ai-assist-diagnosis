@@ -1,4 +1,4 @@
-#encoding:utf-8
+t#encoding:utf-8
 import sys
 from copy import deepcopy
 

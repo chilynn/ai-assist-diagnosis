@@ -9,25 +9,39 @@ def outputSet(records, outfile_name):
 		for record in records:
 			outfile.write(record + "\r\n")	
 
+def splitCleanOutput(document, outfile):
+	document = document.strip()
+	sentences = document.split(u"。")
+	for sentence in sentences:
+		if len(sentence) == 0:
+			continue
+		sentence_clean = ""
+		for w in sentence.strip():
+			if w in ["\r", "\n"]:
+				continue
+			sentence_clean += w
+		outfile.write(sentence_clean.encode('gb2312', "ignore"))
+		outfile.write("\r\n")
+
 def generateText():
 	with open("../crawl/health39/crawl_data/disease.json", "rb") as infile,\
 		 open ("data/disease.txt", "wb") as outfile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
-			outfile.write(json_obj["intro"].strip() + "\r\n")
-			outfile.write(json_obj["reason"].strip() + "\r\n")
-			outfile.write(json_obj["symptom"].strip() + "\r\n")
-			outfile.write(json_obj["identification"].strip() + "\r\n")
+			splitCleanOutput(json_obj["intro"], outfile)
+			splitCleanOutput(json_obj["reason"], outfile)
+			splitCleanOutput(json_obj["symptom"], outfile)
+			splitCleanOutput(json_obj["identification"], outfile)
 
 	with open("../crawl/health39/crawl_data/symptom.json", "rb") as infile,\
 		 open ("data/symptom.txt", "wb") as outfile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
-			outfile.write(json_obj["intro"].strip() + "\r\n")
-			outfile.write(json_obj["reason"].strip() + "\r\n")
-			outfile.write(json_obj["diagnosis"].strip() + "\r\n")
+			splitCleanOutput(json_obj["intro"], outfile)
+			splitCleanOutput(json_obj["reason"], outfile)
+			splitCleanOutput(json_obj["diagnosis"], outfile)
 
 def generateLexicon():
 	diseases = set()

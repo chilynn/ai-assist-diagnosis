@@ -46,7 +46,7 @@ def autoLabel(sentence, trie):
 	return sentence_tagged
 
 def generateTrain(sentences, trie):
-	print "start auto labeling ..."
+	print "start auto labeling train data ..."
 	with open("train.txt", "wb") as outfile:
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
@@ -55,9 +55,9 @@ def generateTrain(sentences, trie):
 			outfile.write("\n")
 	print "finished auto labeling"
 
-def generateTest(sentences, trie):
-	print "start auto labeling ..."
-	with open("test.txt", "wb") as outfile:
+def generateTest(sentences, trie, outfile_name):
+	print "start auto labeling test file ..."
+	with open(outfile_name, "wb") as outfile:
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
 			for record in zip(sentence, sentence_tagged):
@@ -73,9 +73,11 @@ def main():
 	(diseases, symptoms, examinations) = getLexicon()
 	symptom_sentences = getSentence("symptom.txt")
 	disease_sentences = getSentence("disease.txt")
-	trie_symptom = buildTrie(symptoms)
+	examination_sentences = getSentence("examination.txt")
+	trie_symptom = buildTrie(diseases | symptoms)
 	generateTrain(symptom_sentences, trie_symptom)
-	generateTest(disease_sentences, trie_symptom)
-
+	generateTest(disease_sentences, trie_symptom, "test.txt")
+	generateTest(examination_sentences, trie_symptom, "test_exam.txt")
+	
 if __name__ == '__main__':
 	main()
