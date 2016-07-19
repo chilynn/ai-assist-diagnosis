@@ -20,7 +20,7 @@ def splitCleanOutput(document, outfile):
 			if w in ["\r", "\n"]:
 				continue
 			sentence_clean += w
-		outfile.write(sentence_clean.encode('gb2312', "ignore"))
+		outfile.write(sentence_clean)
 		outfile.write("\r\n")
 
 def generateText():

@@ -9,6 +9,8 @@ def newWordIdentification():
 		for row in infile:
 			row = row.strip().decode("utf-8")
 			items = row.split('\t')
+			if len(items) != 4:
+				continue
 			word = items[0]
 			fre = float(items[1])
 			out = float(items[2])
