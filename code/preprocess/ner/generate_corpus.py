@@ -4,8 +4,8 @@ import json
 import jieba,jieba.posseg,jieba.analyse
 import pickle
 
-def outputSet(records, outfile_name):
-	with open("data/" + outfile_name, "wb") as outfile:
+def outputSet(records, outfile_path):
+	with open(outfile_path, "wb") as outfile:
 		for record in records:
 			outfile.write(record + "\r\n")	
 
@@ -24,7 +24,7 @@ def splitCleanOutput(document, outfile):
 		outfile.write("\r\n")
 
 def generateText():
-	with open("../crawl/health39/crawl_data/disease.json", "rb") as infile,\
+	with open("../../crawl/health39/crawl_data/disease.json", "rb") as infile,\
 		 open ("data/disease.txt", "wb") as outfile:
 		for row in infile:
 			json_str = row.strip()
@@ -34,7 +34,7 @@ def generateText():
 			splitCleanOutput(json_obj["symptom"], outfile)
 			splitCleanOutput(json_obj["identification"], outfile)
 
-	with open("../crawl/health39/crawl_data/symptom.json", "rb") as infile,\
+	with open("../../crawl/health39/crawl_data/symptom.json", "rb") as infile,\
 		 open ("data/symptom.txt", "wb") as outfile:
 		for row in infile:
 			json_str = row.strip()
@@ -47,7 +47,7 @@ def generateLexicon():
 	diseases = set()
 	symptoms = set()
 	examinations = set()
-	with open("../crawl/health39/crawl_data/disease.json", "rb") as infile:
+	with open("../../crawl/health39/crawl_data/disease.json", "rb") as infile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
@@ -55,7 +55,7 @@ def generateLexicon():
 				continue
 			diseases.add(json_obj["name"])
 
-	with open("../crawl/health39/crawl_data/symptom.json", "rb") as infile:
+	with open("../../crawl/health39/crawl_data/symptom.json", "rb") as infile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
@@ -63,7 +63,7 @@ def generateLexicon():
 				continue			
 			symptoms.add(json_obj["name"])
 	
-	with open("../crawl/health39/crawl_data/examination.json", "rb") as infile:
+	with open("../../crawl/health39/crawl_data/examination.json", "rb") as infile:
 		for row in infile:
 			json_str = row.strip()
 			json_obj = json.loads(json_str)
@@ -74,9 +74,9 @@ def generateLexicon():
 	with open("data/lexicon.pickle", "wb") as outfile:
 		pickle.dump((diseases, symptoms, examinations), outfile)
 
-	outputSet(diseases, "disease.lexicon")
-	outputSet(symptoms, "symptom.lexicon")
-	outputSet(examinations, "examination.lexicon")
+	outputSet(diseases, "data/disease.lexicon")
+	outputSet(symptoms, "data/symptom.lexicon")
+	outputSet(examinations, "data/examination.lexicon")
 
 def main():
 	reload(sys)

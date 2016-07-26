@@ -1,21 +1,29 @@
-t#encoding:utf-8
+#encoding:utf-8
 import sys
+import pickle
 from copy import deepcopy
 
-# 以下5个元素是HMM模型的参数
-V = set() # 观测集合
-Q = set() # 状态集合
-A = {} # 状态转移概率矩阵，P(状态|状态)
-B = {} # 观测概率矩阵，P(观测|状态)
-PI = {} # 初始状态概率向量
+is_train = True
 
 DEFAULT_PROB = 0.000000000001
 MIN_PROB = -1 * float('inf')
 
-def train(train_file):
+train_path = "../../data/train.in"
+test_path = "../../data/test.in"
+output_path = "hmm.out"
+
+def train():
 	print "start training ..."
+
+	# 以下5个元素是HMM模型的参数
+	V = set() # 观测集合
+	Q = set() # 状态集合
+	A = {} # 状态转移概率矩阵，P(状态|状态)
+	B = {} # 观测概率矩阵，P(观测|状态)
+	PI = {} # 初始状态概率向量
+
 	# 统计模型参数
-	with open(train_file, "rb") as infile:
+	with open(train_path, "rb") as infile:
 		pre_s = -1 # t-1时刻的状态
 		for line in infile:
 			segs = line.strip().split()
@@ -53,7 +61,21 @@ def train(train_file):
 		PI[i] = 1.0 * PI[i] / prob_sum
 	print "finished training ..."
 
-def predict(X):
+	return A, B, PI, V, Q
+
+def saveModel(A, B, PI, V, Q):
+	with open("A.param", "wb") as outfile:
+		pickle.dump(A, outfile)
+	with open("B.param", "wb") as outfile:
+		pickle.dump(B, outfile)
+	with open("PI.param", "wb") as outfile:
+		pickle.dump(PI, outfile)
+	with open("V.param", "wb") as outfile:
+		pickle.dump(V, outfile)
+	with open("Q.param", "wb") as outfile:
+		pickle.dump(Q, outfile)
+
+def predict(X, A, B, PI, V, Q):
 	W = [{} for t in range(len(X))]
 	path = {}
 	for s in Q:
@@ -75,14 +97,25 @@ def predict(X):
 			new_path[s] = tmp
 		path = new_path
 	(max_prob, max_s) = max((W[len(X)-1][s], s) for s in Q)
-	# return path['E']
 	return path[max_s]
 
-def test(test_file, output_file):
+def getModel():
+	with open("A.param", "rb") as infile:
+		A = pickle.load(infile)
+	with open("B.param", "rb") as infile:
+		B = pickle.load(infile)
+	with open("PI.param", "rb") as infile:
+		PI = pickle.load(infile)
+	with open("V.param", "rb") as infile:
+		V = pickle.load(infile)
+	with open("Q.param", "rb") as infile:
+		Q = pickle.load(infile)		
+	return A, B, PI, V, Q
+
+def test(A, B, PI, V, Q):
 	print "start testing"
-	words = set()
-	with open(test_file, "rb") as infile, \
-		 open(output_file, "wb") as outfile:
+	with open(test_path, "rb") as infile, \
+		 open(output_path, "wb") as outfile:
 		X_test = []
 		y_test = []
 		for line in infile:
@@ -90,45 +123,28 @@ def test(test_file, output_file):
 			if len(segs) == 0: # 遇到空行时
 				if len(X_test) == 0:
 					continue
-				preds = predict(X_test)
+				preds = predict(X_test, A, B, PI, V, Q)
 				for vals in zip(X_test, y_test, preds):
-					outfile.write("\t".join(vals) + "\r\n")	
-				outfile.write("\r\n")
-				tmp = ""
-				for i in range(len(preds)):
-					if preds[i] != 'O':
-						tmp += X_test[i]
-					else:
-						tmp += " "
-				for w in tmp.split():
-					if w.strip() != "":
-						words.add(w)
+					outfile.write("\t".join(vals) + "\n")	
+				outfile.write("\n")
 				X_test = []
 				y_test = []
 			else:
-				if len(segs) != 2:
-					print line
-				
 				o = segs[0] # t时刻的观测o
 				s = segs[1] # t时刻的状态s		
 				X_test.append(o)
 				y_test.append(s)
 
-	with open("word.txt", "wb") as outfile:
-		for w in words:
-			outfile.write(w + "\r\n")
-
 	print "finished testing"
 
 def main():
-	if len(sys.argv) < 3:
-		print "python hmm.py train.txt test.txt output.txt"
+	if is_train:
+		A, B, PI, V, Q = train()
+		saveModel(A, B, PI, V, Q)
 	else:
-		train_file = sys.argv[1]
-		test_file = sys.argv[2]
-		output_file = sys.argv[3]
-		train(train_file)
-		test(test_file, output_file)
+		A, B, PI, V, Q = getModel()
+
+	test(A, B, PI, V, Q)
 
 if __name__ == '__main__':
 	main()

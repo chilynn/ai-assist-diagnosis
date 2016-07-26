@@ -5,7 +5,7 @@ import pickle
 
 def newWordIdentification():
 	word2feature = {}
-	with open("data/feature.txt", "rb") as infile:
+	with open("../../data/nwi_feature.txt", "rb") as infile:
 		for row in infile:
 			row = row.strip().decode("utf-8")
 			items = row.split('\t')
@@ -23,10 +23,9 @@ def newWordIdentification():
 	for val in sort_list[:2000]:
 		new_words.add(val[0])
 
-	with open("data/new_word.txt", "wb") as outfile:
+	with open("../../result/nwi_word.txt", "wb") as outfile:
 		for word in new_words:
 			outfile.write(word+"\r\n")
-
 
 def main():
 	reload(sys)

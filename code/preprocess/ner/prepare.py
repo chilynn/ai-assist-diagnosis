@@ -4,16 +4,16 @@ import pickle
 from trie import Trie
 
 def getLexicon():
-	with open("../data/lexicon.pickle", "rb") as infile:
+	with open("data/lexicon.pickle", "rb") as infile:
 		(diseases, symptoms, examinations) = pickle.load(infile)
 	return (diseases, symptoms, examinations) 
 
-def getSentence(infile_name):
+def getSentence(infile_path):
 	sentences = []
-	with open("../data/"+infile_name, "rb") as infile:
+	with open(infile_path, "rb") as infile:
 		for row in infile:
 			row = row.strip().decode("utf-8").replace(' ', '')
-			sentences += [sentence.strip() for sentence in row.split(u'。')[:-1]]
+			sentences += [sentence.strip() for sentence in row.split(u'。') if sentence.strip() != ""]
 	return sentences
 
 def buildTrie(words):
@@ -45,9 +45,9 @@ def autoLabel(sentence, trie):
 		i += 1
 	return sentence_tagged
 
-def generateTrain(sentences, trie):
+def generateTrain(sentences, trie, outfile_path):
 	print "start auto labeling train data ..."
-	with open("train.txt", "wb") as outfile:
+	with open(outfile_path, "wb") as outfile:
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
 			for record in zip(sentence, sentence_tagged):
@@ -55,9 +55,9 @@ def generateTrain(sentences, trie):
 			outfile.write("\n")
 	print "finished auto labeling"
 
-def generateTest(sentences, trie, outfile_name):
+def generateTest(sentences, trie, outfile_path):
 	print "start auto labeling test file ..."
-	with open(outfile_name, "wb") as outfile:
+	with open(outfile_path, "wb") as outfile:
 		for sentence in sentences:
 			sentence_tagged = autoLabel(sentence, trie)
 			for record in zip(sentence, sentence_tagged):
@@ -71,13 +71,13 @@ def main():
 	reload(sys)
 	sys.setdefaultencoding('utf-8')
 	(diseases, symptoms, examinations) = getLexicon()
-	symptom_sentences = getSentence("symptom.txt")
-	disease_sentences = getSentence("disease.txt")
-	examination_sentences = getSentence("examination.txt")
-	trie_symptom = buildTrie(diseases | symptoms)
-	generateTrain(symptom_sentences, trie_symptom)
-	generateTest(disease_sentences, trie_symptom, "test.txt")
-	generateTest(examination_sentences, trie_symptom, "test_exam.txt")
+	symptom_sentences = getSentence("data/symptom.txt")
+	disease_sentences = getSentence("data/disease.txt")
+	examination_sentences = getSentence("data/examination.txt")
+	entity_trie = buildTrie(diseases | symptoms)
+	generateTrain(symptom_sentences, entity_trie, "data/train.in")
+	generateTest(disease_sentences, entity_trie, "data/test.in")
+	# generateTest(examination_sentences, entity_trie, "test_exam.txt")
 	
 if __name__ == '__main__':
 	main()
